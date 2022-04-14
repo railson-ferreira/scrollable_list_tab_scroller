@@ -71,9 +71,11 @@ class ScrollableListTabScrollerState
         // Prevent operation when length == 0 (Component was rendered outside screen)
         itemPositionsListener.itemPositions.value.length != 0) {
       disableItemPositionListener = true;
-      itemScrollController
-          .scrollTo(index: index, duration: Duration(milliseconds: 300))
-          .whenComplete(() => disableItemPositionListener = false);
+      if(itemScrollController.isAttached){
+        itemScrollController
+            .scrollTo(index: index, duration: Duration(milliseconds: 300))
+            .whenComplete(() => disableItemPositionListener = false);
+      }
       setCurrentActiveIfDifferent(index);
     }
     widget.tabChanged?.call(index);
