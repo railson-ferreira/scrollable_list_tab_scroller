@@ -23,6 +23,7 @@ To use this widget we must first define how our tabs will look like.
 |`IndexedWidgetBuilder itemBuilder`|Builder of list item.|
 |`IndexedActiveStatusWidgetBuilder tabBuilder`|Builder of tab with active status for customization.|
 |`HeaderBuilder? headerBuilder`|Optional header builder for customization.|
+|`BodyBuilder? bodyBuilder`|Optional body builder for customization.|
 |`ItemScrollController? itemScrollController`|Optional controller for item list.|
 |`PageController? tabPageController`|Optional controller for tabs.|
 |`ItemPositionsListener? itemPositionsListener`|Optional listener of item list positions.|
