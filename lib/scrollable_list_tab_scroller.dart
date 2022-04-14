@@ -9,12 +9,14 @@ typedef IndexedActiveStatusWidgetBuilder = Widget Function(
     BuildContext context, int index, bool active);
 
 typedef HeaderBuilder = Widget Function(BuildContext context, Widget child);
+typedef BodyBuilder = Widget Function(BuildContext context, Widget child);
 
 class ScrollableListTabScroller extends StatefulWidget {
   final int itemCount;
   final IndexedWidgetBuilder itemBuilder;
   final IndexedActiveStatusWidgetBuilder tabBuilder;
   final HeaderBuilder? headerBuilder;
+  final BodyBuilder? bodyBuilder;
   final ItemScrollController? itemScrollController;
   final PageController? tabPageController;
   final ItemPositionsListener? itemPositionsListener;
@@ -26,6 +28,7 @@ class ScrollableListTabScroller extends StatefulWidget {
     required this.itemBuilder,
     required this.tabBuilder,
     this.headerBuilder,
+    this.bodyBuilder,
     this.itemScrollController,
     this.tabPageController,
     this.itemPositionsListener,
@@ -122,6 +125,12 @@ class ScrollableListTabScrollerState
           child: child,
         );
   }
+  Widget buildBody({required BuildContext context, required Widget child}) {
+    return widget.bodyBuilder?.call(context, child) ??
+        Expanded(
+          child: child,
+        );
+  }
 
   @override
   void dispose() {
@@ -157,16 +166,14 @@ class ScrollableListTabScrollerState
             onPageChanged: _onTabsPageChanged,
           ),
         ),
-        Expanded(
-          child: ScrollablePositionedList.builder(
-            itemBuilder: (a, b) {
-              return widget.itemBuilder(a, b);
-            },
-            itemCount: widget.itemCount,
-            itemScrollController: itemScrollController,
-            itemPositionsListener: itemPositionsListener,
-          ),
-        ),
+        buildBody(context: context, child: ScrollablePositionedList.builder(
+          itemBuilder: (a, b) {
+            return widget.itemBuilder(a, b);
+          },
+          itemCount: widget.itemCount,
+          itemScrollController: itemScrollController,
+          itemPositionsListener: itemPositionsListener,
+        ))
       ],
     );
   }
