@@ -1,8 +1,7 @@
-library scrollable_list_tab_scroller;
-
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:scrolls_to_top/scrolls_to_top.dart';
 import 'package:uuid/uuid.dart';
 
 typedef IndexedActiveStatusWidgetBuilder = Widget Function(
@@ -12,12 +11,7 @@ typedef IndexedVoidCallback = void Function(int index);
 typedef HeaderContainerBuilder = Widget Function(
     BuildContext context, Widget child);
 typedef HeaderWidgetBuilder = Widget Function(
-  BuildContext context,
-  ValueNotifier<int> selectedTabIndex,
-  IndexedVoidCallback onTapTab,
-  IndexedActiveStatusWidgetBuilder tabBuilder,
-  int itemCount,
-);
+    BuildContext context, Widget child);
 typedef BodyContainerBuilder = Widget Function(
     BuildContext context, Widget child);
 
@@ -29,42 +23,26 @@ class ScrollableListTabScroller extends StatefulWidget {
   final HeaderWidgetBuilder? headerWidgetBuilder;
   final BodyContainerBuilder? bodyContainerBuilder;
   final ItemScrollController? itemScrollController;
-  final PageController? tabPageController;
   final ItemPositionsListener? itemPositionsListener;
   final void Function(int)? tabChanged;
   final double earlyChangePositionOffset;
   final Duration animationDuration;
+  final bool shrinkWrap;
 
   ScrollableListTabScroller({
     required this.itemCount,
     required this.itemBuilder,
     required this.tabBuilder,
-    HeaderContainerBuilder? headerContainerBuilder,
-    @Deprecated("use 'headerContainerBuilder' instead")
-        HeaderContainerBuilder? headerBuilder,
+    this.headerContainerBuilder,
     this.headerWidgetBuilder,
-    BodyContainerBuilder? bodyContainerBuilder,
-    @Deprecated("use 'bodyContainerBuilder' instead")
-        BodyContainerBuilder? bodyBuilder,
+    this.bodyContainerBuilder,
     this.itemScrollController,
-    this.tabPageController,
     this.itemPositionsListener,
     this.tabChanged,
-    @Deprecated("use 'earlyChangePositionOffset' instead")
-        double? minEdgeBeforeChangeTab,
-    double? earlyChangePositionOffset,
+    this.earlyChangePositionOffset = 0,
     this.animationDuration = const Duration(milliseconds: 300),
-  })  : assert(headerContainerBuilder == null || headerBuilder == null,
-            "You must use just 'headerContainerBuilder'"),
-        assert(bodyContainerBuilder == null || bodyBuilder == null,
-            "You must use just 'bodyContainerBuilder'"),
-        assert(
-            earlyChangePositionOffset == null || minEdgeBeforeChangeTab == null,
-            "You must use just 'earlyChangePositionOffset'"),
-        headerContainerBuilder = headerContainerBuilder ?? headerBuilder,
-        bodyContainerBuilder = bodyContainerBuilder ?? bodyBuilder,
-        this.earlyChangePositionOffset =
-            earlyChangePositionOffset ?? minEdgeBeforeChangeTab ?? 0;
+    this.shrinkWrap = false,
+  });
 
   @override
   ScrollableListTabScrollerState createState() =>
@@ -73,9 +51,7 @@ class ScrollableListTabScroller extends StatefulWidget {
 
 class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
   late final ItemScrollController itemScrollController;
-  late final PageController tabPageController;
   late final ItemPositionsListener itemPositionsListener;
-  bool disableItemPositionListener = false;
   final _selectedTabIndex = ValueNotifier(0);
   final _debounceId = "scrollable_list_tab_scroller_" + Uuid().v1();
   Size _currentPositionedListSize = Size.zero;
@@ -144,8 +120,6 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
     return renderedMostTopItem.index;
   }
 
-  void onTapTab(int index) => _triggerScrollInPositionedListIfNeeded(index);
-
   Widget buildCustomHeaderContainerOrDefault(
       {required BuildContext context, required Widget child}) {
     return widget.headerContainerBuilder?.call(context, child) ??
@@ -163,23 +137,9 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
         );
   }
 
-  Widget buildCustomHeaderWidgetBuilderOrDefault(
-    BuildContext context,
-    ValueNotifier<int> selectedTabIndex,
-    IndexedVoidCallback onTapTab,
-    IndexedActiveStatusWidgetBuilder tabBuilder,
-    int itemCount,
-  ) {
-    return widget.headerWidgetBuilder?.call(
-            context, selectedTabIndex, onTapTab, tabBuilder, itemCount) ??
-        DefaultHeaderWidget(
-          selectedTabIndex: selectedTabIndex,
-          tabBuilder: tabBuilder,
-          onTapTab: onTapTab,
-          itemCount: itemCount,
-          animationDuration: widget.animationDuration,
-          tabPageController: widget.tabPageController,
-        );
+  Future<void> _onScrollsToTop(ScrollsToTopEvent event) async {
+    itemScrollController.scrollTo(
+        index: 0, duration: event.duration, curve: event.curve);
   }
 
   @override
@@ -195,33 +155,38 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
       children: [
         buildCustomHeaderContainerOrDefault(
           context: context,
-          child: buildCustomHeaderWidgetBuilderOrDefault(
-            context,
-            _selectedTabIndex,
-            onTapTab,
-            widget.tabBuilder,
-            widget.itemCount,
+          child: DefaultHeaderWidget(
+            key: Key(widget.itemCount.toString()),
+            itemCount: widget.itemCount,
+            onTapTab: (i) => _triggerScrollInPositionedListIfNeeded(i),
+            //TODO: implement callback to handle tab click ,
+            selectedTabIndex: _selectedTabIndex,
+            tabBuilder: widget.tabBuilder,
           ),
         ),
         buildCustomBodyContainerOrDefault(
-            context: context,
-            child: Builder(builder: (context) {
-              // Keep using '?', must be removed later
-              WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-                final size = context.size;
-                if (size != null) {
-                  _currentPositionedListSize = size;
-                }
-              });
-              return ScrollablePositionedList.builder(
+          context: context,
+          child: Builder(builder: (context) {
+            WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+              final size = context.size;
+              if (size != null) {
+                _currentPositionedListSize = size;
+              }
+            });
+            return ScrollsToTop(
+              onScrollsToTop: _onScrollsToTop,
+              child: ScrollablePositionedList.builder(
+                shrinkWrap: widget.shrinkWrap,
                 itemBuilder: (a, b) {
                   return widget.itemBuilder(a, b);
                 },
                 itemCount: widget.itemCount,
                 itemScrollController: itemScrollController,
                 itemPositionsListener: itemPositionsListener,
-              );
-            }))
+              ),
+            );
+          }),
+        )
       ],
     );
   }
@@ -232,8 +197,6 @@ class DefaultHeaderWidget extends StatefulWidget {
   final IndexedActiveStatusWidgetBuilder tabBuilder;
   final IndexedVoidCallback onTapTab;
   final int itemCount;
-  final PageController? tabPageController;
-  final Duration animationDuration;
 
   DefaultHeaderWidget({
     Key? key,
@@ -241,78 +204,74 @@ class DefaultHeaderWidget extends StatefulWidget {
     required this.tabBuilder,
     required this.onTapTab,
     required this.itemCount,
-    this.animationDuration = const Duration(milliseconds: 300),
-    this.tabPageController,
   }) : super(key: key);
 
   @override
   State<DefaultHeaderWidget> createState() => _DefaultHeaderWidgetState();
 }
 
-class _DefaultHeaderWidgetState extends State<DefaultHeaderWidget> {
-  late final PageController tabPageController;
-  bool isNotifyPageChangedEnabled = true;
-  final _debounceId =
-      "scrollable_list_tab_scroller_default_header" + Uuid().v1();
+class _DefaultHeaderWidgetState extends State<DefaultHeaderWidget>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    tabPageController =
-        widget.tabPageController ?? PageController(viewportFraction: 0.5);
+    _tabController = TabController(
+      initialIndex: widget.selectedTabIndex.value,
+      length: widget.itemCount,
+      vsync: this,
+    );
+    _tabController.addListener(tabChangeListener);
     widget.selectedTabIndex.addListener(externalTabChangeListener);
-  }
-
-  void externalTabChangeListener() {
-    isNotifyPageChangedEnabled = false;
-    tabPageController
-        .animateToPage(widget.selectedTabIndex.value,
-            duration: widget.animationDuration, curve: Curves.ease)
-        .whenComplete(() {
-      EasyDebounce.debounce(_debounceId, widget.animationDuration, () {
-        isNotifyPageChangedEnabled = true;
-      });
-    });
-  }
-
-  void _onTabsPageChanged(int index) {
-    if (isNotifyPageChangedEnabled) {
-      widget.onTapTab(index);
-    }
-    tabPageController.jumpToPage(widget.selectedTabIndex.value);
   }
 
   @override
   void dispose() {
-    if (widget.tabPageController == null) {
-      tabPageController.dispose();
-    }
+    _tabController.dispose();
     widget.selectedTabIndex.removeListener(externalTabChangeListener);
-    EasyDebounce.cancel(_debounceId);
     super.dispose();
+  }
+
+  void tabChangeListener() {
+    widget.onTapTab(_tabController.index);
+  }
+
+  void externalTabChangeListener() {
+    _tabController.index = widget.selectedTabIndex.value;
+  }
+
+  void _onTapTab(_) {
+    _tabController.index = widget.selectedTabIndex.value;
   }
 
   @override
   Widget build(BuildContext context) {
-    return PageView.builder(
-      physics: AlwaysScrollableScrollPhysics(),
-      itemBuilder: (_, index) {
-        return RawMaterialButton(
-          onPressed: () => widget.onTapTab(index),
-          child: Center(
-            child: ValueListenableBuilder(
-                valueListenable: widget.selectedTabIndex,
-                builder: (context, int value, _) {
-                  final isActive = value == index;
-                  return widget.tabBuilder(context, index, isActive);
-                }),
-          ),
-        );
-      },
-      itemCount: widget.itemCount,
-      scrollDirection: Axis.horizontal,
-      controller: tabPageController,
-      onPageChanged: _onTabsPageChanged,
+    final defaultTextStyle = DefaultTextStyle.of(context);
+    final tabList = List.generate(
+      widget.itemCount,
+      (i) => ValueListenableBuilder(
+        valueListenable: widget.selectedTabIndex,
+        builder: (context, selectedIndex, child) =>
+            widget.tabBuilder(context, i, i == selectedIndex),
+      ),
+    );
+    return Theme(
+      data: Theme.of(context).copyWith(
+          splashColor: Colors.transparent, highlightColor: Colors.transparent,
+      ),
+      child: TabBar(
+        onTap: _onTapTab,
+        indicator: BoxDecoration(),
+        indicatorWeight: 0,
+        labelPadding: EdgeInsets.zero,
+        automaticIndicatorColorAdjustment: false,
+        overlayColor: MaterialStateProperty.all(Colors.transparent),
+        labelColor: defaultTextStyle.style.color,
+        isScrollable: true,
+        controller: _tabController,
+        tabs: tabList,
+      ),
     );
   }
 }

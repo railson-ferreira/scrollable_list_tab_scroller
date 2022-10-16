@@ -53,25 +53,64 @@
           "Item 3 (D)",
           "Item 4 (D)",
           "Item 5 (D)",
-          "Item 6 (D)",
-          "Item 7 (D)",
-          "Item 8 (D)",
-          "Item 9 (D)",
+        ],
+        "Category E": [
+          "Item 1 (E)",
+          "Item 2 (E)",
+          "Item 3 (E)",
+          "Item 4 (E)",
+          "Item 5 (E)",
+        ],
+        "Category F": [
+          "Item 1 (F)",
+          "Item 2 (F)",
+          "Item 3 (F)",
+          "Item 4 (F)",
+          "Item 5 (F)",
+        ],
+        "Category G": [
+          "Item 1 (G)",
+          "Item 2 (G)",
+          "Item 3 (G)",
+          "Item 4 (G)",
+          "Item 5 (G)",
+        ],
+        "Category H": [
+          "Item 1 (H)",
+          "Item 2 (H)",
+          "Item 3 (H)",
+          "Item 4 (H)",
+          "Item 5 (H)",
+        ],
+        "Category I": [
+          "Item 1 (I)",
+          "Item 2 (I)",
+          "Item 3 (I)",
+          "Item 4 (I)",
+          "Item 5 (I)",
+          "Item 6 (I)",
+          "Item 7 (I)",
+          "Item 8 (I)",
+          "Item 9 (I)",
         ],
       };
 
       @override
       Widget build(BuildContext context) {
+        final size = MediaQuery.of(context).size;
         return Scaffold(
             appBar: AppBar(
               title: Text(widget.title),
             ),
             body: ScrollableListTabScroller(
-              tabBuilder: (BuildContext context, int index, bool active) => Text(
-                data.keys.elementAt(index),
-                style: !active
-                    ? null
-                    : TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+              tabBuilder: (BuildContext context, int index, bool active) => Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Text(
+                  data.keys.elementAt(index),
+                  style: !active
+                      ? null
+                      : TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+                ),
               ),
               itemCount: data.length,
               itemBuilder: (BuildContext context, int index) => Column(

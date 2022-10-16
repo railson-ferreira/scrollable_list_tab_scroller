@@ -2,7 +2,7 @@
 
 Customizable Flutter widget which synchronize ScrollView with PageView as tabs.
 
-Create a custom page view as tabs which synchronize with inner ScrollView. The page view follows the index of scroll view and vice-versa.
+Create custom tabs which synchronize with inner ScrollView. The tabs follow the index of scroll view and vice-versa.
 
 
 ![Demo](https://media.giphy.com/media/EVBb61Y6XgbRMmhaqU/giphy.gif)
@@ -22,13 +22,15 @@ To use this widget we must first define how our tabs will look like.
 |`int itemCount`|Quantity item that will be built.|
 |`IndexedWidgetBuilder itemBuilder`|Builder of list item.|
 |`IndexedActiveStatusWidgetBuilder tabBuilder`|Builder of tab with active status for customization.|
+|`HeaderContainerBuilder? headerContainerBuilder`|Optional header container builder for customization.|
 |`HeaderBuilder? headerBuilder`|Optional header builder for customization.|
-|`BodyBuilder? bodyBuilder`|Optional body builder for customization.|
+|`BodyContainerBuilder? bodyContainerBuilder`|Optional body container builder for customization.|
 |`ItemScrollController? itemScrollController`|Optional controller for item list.|
-|`PageController? tabPageController`|Optional controller for tabs.|
 |`ItemPositionsListener? itemPositionsListener`|Optional listener of item list positions.|
 |`void Function(int)? tabChanged`|Optional listener of tab changes.|
-|`double minEdgeBeforeChangeTab`|Optional height percentage to change the index before the list item reaches the edge(default = 0).|
+|`double earlyChangePositionOffset`|Optional vertical offset to change the index before the list item reaches the edge(default = 0).|
+|`Duration animationDuration`|Optional animation duration|
+|`bool shrinkWrap`|Optional scrollable_positioned_list shrinkWrap|
 
 
 ## Example
@@ -146,9 +148,7 @@ To use this widget we must first define how our tabs will look like.
 
 
 
-## Limitations & Considerations
-Tab scroller has a limitation, it is built with PageView, allowing less customization possibilities for tabs.
-
+## Considerations
 This widget is inspired in [scrollable_list_tabview](https://pub.dev/packages/scrollable_list_tabview).
 
 

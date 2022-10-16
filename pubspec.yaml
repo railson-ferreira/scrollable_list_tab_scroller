@@ -1,6 +1,6 @@
 name: scrollable_list_tab_scroller
-description:  Customizable Flutter widget which syncronize ScrollView with PageView as tabs
-version: 0.2.0
+description:  Customizable Flutter widget which synchronize a scrollable grouped items list with tabs
+version: 1.0.0
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -11,9 +11,10 @@ repository: https://github.com/railson-ferreira/scrollable_list_tab_scroller
 dependencies:
   flutter:
     sdk: flutter
-  scrollable_positioned_list: ^0.2.2
+  scrollable_positioned_list: ^0.3.2
   easy_debounce: ^2.0.1
   uuid: ^3.0.5
+  scrolls_to_top: ^1.1.1
 
 dev_dependencies:
   flutter_test:
