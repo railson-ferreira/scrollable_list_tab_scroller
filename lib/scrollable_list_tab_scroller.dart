@@ -27,7 +27,6 @@ class ScrollableListTabScroller extends StatefulWidget {
   final void Function(int)? tabChanged;
   final double earlyChangePositionOffset;
   final Duration animationDuration;
-  final bool shrinkWrap;
 
   ScrollableListTabScroller({
     required this.itemCount,
@@ -42,7 +41,88 @@ class ScrollableListTabScroller extends StatefulWidget {
     this.earlyChangePositionOffset = 0,
     this.animationDuration = const Duration(milliseconds: 300),
     this.shrinkWrap = false,
+    this.initialScrollIndex = 0,
+    this.initialAlignment = 0,
+    this.scrollDirection = Axis.vertical,
+    this.reverse = false,
+    this.physics,
+    this.semanticChildCount,
+    this.padding,
+    this.addSemanticIndexes = true,
+    this.addAutomaticKeepAlives = true,
+    this.addRepaintBoundaries = true,
+    this.minCacheExtent,
   });
+
+  /// Index of an item to initially align within the viewport.
+  final int initialScrollIndex;
+
+  /// Determines where the leading edge of the item at [initialScrollIndex]
+  /// should be placed.
+  ///
+  /// See [ItemScrollController.jumpTo] for an explanation of alignment.
+  final double initialAlignment;
+
+  /// The axis along which the scroll view scrolls.
+  ///
+  /// Defaults to [Axis.vertical].
+  final Axis scrollDirection;
+
+  /// Whether the view scrolls in the reading direction.
+  ///
+  /// Defaults to false.
+  ///
+  /// See [ScrollView.reverse].
+  final bool reverse;
+
+  /// {@template flutter.widgets.scroll_view.shrinkWrap}
+  /// Whether the extent of the scroll view in the [scrollDirection] should be
+  /// determined by the contents being viewed.
+  ///
+  ///  Defaults to false.
+  ///
+  /// See [ScrollView.shrinkWrap].
+  final bool shrinkWrap;
+
+  /// How the scroll view should respond to user input.
+  ///
+  /// For example, determines how the scroll view continues to animate after the
+  /// user stops dragging the scroll view.
+  ///
+  /// See [ScrollView.physics].
+  final ScrollPhysics? physics;
+
+  /// The number of children that will contribute semantic information.
+  ///
+  /// See [ScrollView.semanticChildCount] for more information.
+  final int? semanticChildCount;
+
+  /// The amount of space by which to inset the children.
+  final EdgeInsets? padding;
+
+  /// Whether to wrap each child in an [IndexedSemantics].
+  ///
+  /// See [SliverChildBuilderDelegate.addSemanticIndexes].
+  final bool addSemanticIndexes;
+
+  /// Whether to wrap each child in an [AutomaticKeepAlive].
+  ///
+  /// See [SliverChildBuilderDelegate.addAutomaticKeepAlives].
+  final bool addAutomaticKeepAlives;
+
+  /// Whether to wrap each child in a [RepaintBoundary].
+  ///
+  /// See [SliverChildBuilderDelegate.addRepaintBoundaries].
+  final bool addRepaintBoundaries;
+
+  /// The minimum cache extent used by the underlying scroll lists.
+  /// See [ScrollView.cacheExtent].
+  ///
+  /// Note that the [ScrollablePositionedList] uses two lists to simulate long
+  /// scrolls, so using the [ScrollController.scrollTo] method may result
+  /// in builds of widgets that would otherwise already be built in the
+  /// cache extent.
+  final double? minCacheExtent;
 
   @override
   ScrollableListTabScrollerState createState() =>
@@ -176,13 +256,24 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
             return ScrollsToTop(
               onScrollsToTop: _onScrollsToTop,
               child: ScrollablePositionedList.builder(
-                shrinkWrap: widget.shrinkWrap,
                 itemBuilder: (a, b) {
                   return widget.itemBuilder(a, b);
                 },
                 itemCount: widget.itemCount,
                 itemScrollController: itemScrollController,
                 itemPositionsListener: itemPositionsListener,
+                shrinkWrap: widget.shrinkWrap,
+                initialScrollIndex: widget.initialScrollIndex,
+                initialAlignment: widget.initialAlignment,
+                scrollDirection: widget.scrollDirection,
+                reverse: widget.reverse,
+                physics: widget.physics,
+                semanticChildCount: widget.semanticChildCount,
+                padding: widget.padding,
+                addSemanticIndexes: widget.addSemanticIndexes,
+                addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
+                addRepaintBoundaries: widget.addRepaintBoundaries,
+                minCacheExtent: widget.minCacheExtent,
               ),
             );
           }),
@@ -258,7 +349,8 @@ class _DefaultHeaderWidgetState extends State<DefaultHeaderWidget>
     );
     return Theme(
       data: Theme.of(context).copyWith(
-          splashColor: Colors.transparent, highlightColor: Colors.transparent,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
       ),
       child: TabBar(
         onTap: _onTapTab,
