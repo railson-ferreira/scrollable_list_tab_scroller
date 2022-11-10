@@ -1,3 +1,8 @@
+## 1.1.0
+
+Features:
+- Add all parameters of 'scrollable_positioned_list'
+
 ## 1.0.0
 
 Features:
