@@ -100,46 +100,50 @@ To use this widget we must first define how our tabs will look like.
       @override
       Widget build(BuildContext context) {
         return Scaffold(
-            appBar: AppBar(
-              title: Text(widget.title),
-            ),
-            body: ScrollableListTabScroller(
-              tabBuilder: (BuildContext context, int index, bool active) => Text(
+          appBar: AppBar(
+            title: Text(widget.title),
+          ),
+          body: ScrollableListTabScroller(
+            itemCount: data.length,
+            tabBuilder: (BuildContext context, int index, bool active) => Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Text(
                 data.keys.elementAt(index),
                 style: !active
                     ? null
                     : TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
               ),
-              itemCount: data.length,
-              itemBuilder: (BuildContext context, int index) => Column(
-                children: [
-                  Text(
-                    data.keys.elementAt(index),
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
-                  ...data.values
-                      .elementAt(index)
-                      .asMap()
-                      .map(
-                        (index, value) => MapEntry(
-                          index,
-                          ListTile(
-                            leading: Container(
-                              height: 40,
-                              width: 40,
-                              decoration: BoxDecoration(
-                                  shape: BoxShape.circle, color: Colors.grey),
-                              alignment: Alignment.center,
-                              child: Text(index.toString()),
-                            ),
-                            title: Text(value),
+            ),
+            itemBuilder: (BuildContext context, int index) => Column(
+              children: [
+                Text(
+                  data.keys.elementAt(index),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
+                ...data.values
+                    .elementAt(index)
+                    .asMap()
+                    .map(
+                      (index, value) => MapEntry(
+                        index,
+                        ListTile(
+                          leading: Container(
+                            height: 40,
+                            width: 40,
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle, color: Colors.grey),
+                            alignment: Alignment.center,
+                            child: Text(index.toString()),
                           ),
+                          title: Text(value),
                         ),
-                      )
-                      .values
-                ],
-              ),
-            ));
+                      ),
+                    )
+                    .values
+              ],
+            ),
+          ),
+        );
       }
     }
 

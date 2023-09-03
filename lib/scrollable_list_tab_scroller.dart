@@ -1,8 +1,8 @@
-import 'package:easy_debounce/easy_debounce.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:scrolls_to_top/scrolls_to_top.dart';
-import 'package:uuid/uuid.dart';
 
 typedef IndexedActiveStatusWidgetBuilder = Widget Function(
     BuildContext context, int index, bool active);
@@ -24,7 +24,7 @@ class ScrollableListTabScroller extends StatefulWidget {
   final BodyContainerBuilder? bodyContainerBuilder;
   final ItemScrollController? itemScrollController;
   final ItemPositionsListener? itemPositionsListener;
-  final void Function(int)? tabChanged;
+  final void Function(int tabIndex)? tabChanged;
   final double earlyChangePositionOffset;
   final Duration animationDuration;
 
@@ -133,7 +133,7 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
   late final ItemScrollController itemScrollController;
   late final ItemPositionsListener itemPositionsListener;
   final _selectedTabIndex = ValueNotifier(0);
-  final _debounceId = "scrollable_list_tab_scroller_" + Uuid().v1();
+  Timer? _debounce;
   Size _currentPositionedListSize = Size.zero;
 
   @override
@@ -147,10 +147,19 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
 
     itemPositionsListener.itemPositions.addListener(_itemPositionListener);
 
-    _selectedTabIndex.addListener(() {
-      EasyDebounce.debounce(_debounceId, widget.animationDuration, () {
-        widget.tabChanged?.call(_selectedTabIndex.value);
-      });
+    _selectedTabIndex.addListener(onSelectedTabChange);
+  }
+
+  void onSelectedTabChange() {
+    final selectedTabIndex = _selectedTabIndex.value;
+    final debounce = _debounce;
+
+    if (debounce != null && debounce.isActive) {
+      debounce.cancel();
+    }
+
+    _debounce = Timer(widget.animationDuration, () {
+      widget.tabChanged?.call(selectedTabIndex);
     });
   }
 
@@ -223,13 +232,6 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
   }
 
   @override
-  void dispose() {
-    EasyDebounce.cancel(_debounceId);
-    itemPositionsListener.itemPositions.removeListener(_itemPositionListener);
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
@@ -280,6 +282,13 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
         )
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    itemPositionsListener.itemPositions.removeListener(_itemPositionListener);
+    super.dispose();
   }
 }
 

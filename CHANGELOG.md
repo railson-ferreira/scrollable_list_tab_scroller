@@ -1,3 +1,10 @@
+## 1.1.1
+
+Changes:
+- Remove unnecessary dependencies
+- Change sdk constraints to ">=2.12.0 <4.0.0"
+- Change 'scrolls_to_top' constraints to ">=1.0.0 <3.0.0"
+
 ## 1.1.0
 
 Features:
