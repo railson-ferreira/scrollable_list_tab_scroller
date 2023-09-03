@@ -10,8 +10,6 @@ typedef IndexedVoidCallback = void Function(int index);
 
 typedef HeaderContainerBuilder = Widget Function(
     BuildContext context, Widget child);
-typedef HeaderWidgetBuilder = Widget Function(
-    BuildContext context, Widget child);
 typedef BodyContainerBuilder = Widget Function(
     BuildContext context, Widget child);
 
@@ -20,7 +18,6 @@ class ScrollableListTabScroller extends StatefulWidget {
   final IndexedWidgetBuilder itemBuilder;
   final IndexedActiveStatusWidgetBuilder tabBuilder;
   final HeaderContainerBuilder? headerContainerBuilder;
-  final HeaderWidgetBuilder? headerWidgetBuilder;
   final BodyContainerBuilder? bodyContainerBuilder;
   final ItemScrollController? itemScrollController;
   final ItemPositionsListener? itemPositionsListener;
@@ -33,7 +30,8 @@ class ScrollableListTabScroller extends StatefulWidget {
     required this.itemBuilder,
     required this.tabBuilder,
     this.headerContainerBuilder,
-    this.headerWidgetBuilder,
+    @Deprecated("This code is unused and will be removed in the next release.")
+    Widget Function(BuildContext context, Widget child)? headerWidgetBuilder,
     this.bodyContainerBuilder,
     this.itemScrollController,
     this.itemPositionsListener,
