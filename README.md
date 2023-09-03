@@ -1,8 +1,8 @@
 # scrollable_list_tab_scroller
 
-Customizable Flutter widget which synchronize ScrollView with tabs.
+Customizable Flutter widget that synchronizes a scrollable list of grouped items with tabs.
 
-Create custom tabs which synchronize with inner ScrollView. The tabs follow the index of scroll view and vice-versa.
+Create custom tabs that synchronize with inner ScrollView. The tabs follow the index of scroll view and vice-versa.
 
 
 ![Demo](https://media.giphy.com/media/EVBb61Y6XgbRMmhaqU/giphy.gif)
@@ -23,7 +23,6 @@ To use this widget we must first define how our tabs will look like.
 |`IndexedWidgetBuilder itemBuilder`|Builder of list item.|
 |`IndexedActiveStatusWidgetBuilder tabBuilder`|Builder of tab with active status for customization.|
 |`HeaderContainerBuilder? headerContainerBuilder`|Optional header container builder for customization.|
-|`HeaderBuilder? headerBuilder`|Optional header builder for customization.|
 |`BodyContainerBuilder? bodyContainerBuilder`|Optional body container builder for customization.|
 |`ItemScrollController? itemScrollController`|Optional controller for item list.|
 |`ItemPositionsListener? itemPositionsListener`|Optional listener of item list positions.|
