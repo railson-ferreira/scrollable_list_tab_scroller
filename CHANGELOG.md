@@ -1,3 +1,11 @@
+## 1.1.2
+
+Features:
+- Add new parameters of 'scrollable_positioned_list'
+
+Changes:
+- Change 'scrollable_positioned_list' constraints to ^0.3.8
+
 ## 1.1.1
 
 Changes:

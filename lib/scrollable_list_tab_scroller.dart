@@ -50,7 +50,13 @@ class ScrollableListTabScroller extends StatefulWidget {
     this.addAutomaticKeepAlives = true,
     this.addRepaintBoundaries = true,
     this.minCacheExtent,
+    this.scrollOffsetController,
+    this.scrollOffsetListener,
   });
+
+  final ScrollOffsetController? scrollOffsetController;
+
+  final ScrollOffsetListener? scrollOffsetListener;
 
   /// Index of an item to initially align within the viewport.
   final int initialScrollIndex;
@@ -274,6 +280,8 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
                 addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
                 addRepaintBoundaries: widget.addRepaintBoundaries,
                 minCacheExtent: widget.minCacheExtent,
+                scrollOffsetController: widget.scrollOffsetController,
+                scrollOffsetListener: widget.scrollOffsetListener,
               ),
             );
           }),

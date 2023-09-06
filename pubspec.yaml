@@ -10,7 +10,7 @@ repository: https://github.com/railson-ferreira/scrollable_list_tab_scroller
 dependencies:
   flutter:
     sdk: flutter
-  scrollable_positioned_list: ^0.3.5
+  scrollable_positioned_list: ^0.3.8
   scrolls_to_top: ">=1.0.0 <3.0.0"
 
 dev_dependencies:
