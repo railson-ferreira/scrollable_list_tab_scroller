@@ -52,6 +52,7 @@ class ScrollableListTabScroller extends StatefulWidget {
     this.minCacheExtent,
     this.scrollOffsetController,
     this.scrollOffsetListener,
+    this.tabHeight,
   });
 
   final ScrollOffsetController? scrollOffsetController;
@@ -127,6 +128,10 @@ class ScrollableListTabScroller extends StatefulWidget {
   /// in builds of widgets that would otherwise already be built in the
   /// cache extent.
   final double? minCacheExtent;
+
+  ///TabBar height
+  ///Defaults to 30.
+  final double? tabHeight;
 
   @override
   ScrollableListTabScrollerState createState() =>
@@ -217,7 +222,7 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
       {required BuildContext context, required Widget child}) {
     return widget.headerContainerBuilder?.call(context, child) ??
         SizedBox(
-          height: 30,
+          height: widget.tabHeight ?? 30,
           child: child,
         );
   }
