@@ -1,3 +1,15 @@
+## 2.0.0
+
+Features:
+- Add 'tabAlignment' parameter
+
+Fixes:
+- Fix last tab selection
+
+Changes:
+- Change sdk constraints to ">=3.2.0 <4.0.0"
+
+
 ## 1.1.2
 
 Features:
