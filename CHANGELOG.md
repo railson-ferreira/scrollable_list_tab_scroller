@@ -1,3 +1,8 @@
+## 2.0.1
+
+Fixes:
+- Fix last tab selection
+
 ## 2.0.0
 
 Features:
@@ -8,7 +13,6 @@ Fixes:
 
 Changes:
 - Change sdk constraints to ">=3.2.0 <4.0.0"
-
 
 ## 1.1.2
 
