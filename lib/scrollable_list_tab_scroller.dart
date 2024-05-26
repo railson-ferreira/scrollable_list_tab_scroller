@@ -390,7 +390,7 @@ class _DefaultHeaderWidgetState extends State<DefaultHeaderWidget>
         indicatorWeight: 0,
         labelPadding: EdgeInsets.zero,
         automaticIndicatorColorAdjustment: false,
-        overlayColor: MaterialStateProperty.all(Colors.transparent),
+        overlayColor: WidgetStateProperty.all(Colors.transparent),
         labelColor: defaultTextStyle.style.color,
         isScrollable: true,
         controller: _tabController,
