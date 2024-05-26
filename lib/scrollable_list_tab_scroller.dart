@@ -207,20 +207,20 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
       ..sort((a, b) => a.index.compareTo(b.index));
 
     final renderedMostTopItem = orderedListByPositionIndex.first;
+
+    if (orderedListByPositionIndex.length > 1 &&
+        orderedListByPositionIndex.last.index == widget.itemCount - 1) {
+      // I dont know why it's not perfectly 1.0
+      // 1.01 LGTM
+      const fullBottomEdge = 1.01;
+      if (orderedListByPositionIndex.last.itemTrailingEdge < fullBottomEdge) {
+        return orderedListByPositionIndex.last.index;
+      }
+    }
     if (renderedMostTopItem.getBottomOffset(_currentPositionedListSize) <
         widget.earlyChangePositionOffset) {
       if (orderedListByPositionIndex.length > 1) {
         return orderedListByPositionIndex[1].index;
-      }
-    } else {
-      if (orderedListByPositionIndex.length > 1 &&
-          orderedListByPositionIndex[1].index == widget.itemCount - 1) {
-        // I dont know why it's not perfectly 1.0
-        // 1.01 LGTM
-        const fullBottomEdge = 1.01;
-        if (orderedListByPositionIndex[1].itemTrailingEdge < fullBottomEdge) {
-          return orderedListByPositionIndex[1].index;
-        }
       }
     }
     return renderedMostTopItem.index;

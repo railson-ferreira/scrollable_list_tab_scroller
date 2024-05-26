@@ -103,6 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: ScrollableListTabScroller(
         itemCount: data.length,
+        earlyChangePositionOffset: 30,
         tabBuilder: (BuildContext context, int index, bool active) => Padding(
           padding: EdgeInsets.symmetric(horizontal: 10),
           child: Text(
