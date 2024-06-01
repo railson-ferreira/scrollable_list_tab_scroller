@@ -1,3 +1,8 @@
+## 3.0.1
+
+Changes:
+- Set flutter constraints to ^3.22.0
+
 ## 3.0.0
 
 Changes:

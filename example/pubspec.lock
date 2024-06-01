@@ -121,7 +121,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "2.0.1"
+    version: "3.0.0"
   scrollable_positioned_list:
     dependency: transitive
     description:
