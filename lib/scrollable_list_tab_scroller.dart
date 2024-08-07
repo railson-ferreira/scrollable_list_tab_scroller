@@ -9,8 +9,10 @@ typedef IndexedActiveStatusWidgetBuilder = Widget Function(
     BuildContext context, int index, bool active);
 typedef IndexedVoidCallback = void Function(int index);
 
-typedef HeaderContainerBuilder = Widget Function(BuildContext context, Widget child);
-typedef BodyContainerBuilder = Widget Function(BuildContext context, Widget child);
+typedef HeaderContainerBuilder = Widget Function(
+    BuildContext context, Widget child);
+typedef BodyContainerBuilder = Widget Function(
+    BuildContext context, Widget child);
 
 class ScrollableListTabScroller extends StatefulWidget {
   final int itemCount;
@@ -52,6 +54,7 @@ class ScrollableListTabScroller extends StatefulWidget {
     this.scrollOffsetController,
     this.scrollOffsetListener,
     this.tabHeight,
+    this.tabAlignment = TabAlignment.start,
   });
 
   final ScrollOffsetController? scrollOffsetController;
@@ -79,7 +82,6 @@ class ScrollableListTabScroller extends StatefulWidget {
   /// See [ScrollView.reverse].
   final bool reverse;
 
-  /// {@template flutter.widgets.scroll_view.shrinkWrap}
   /// Whether the extent of the scroll view in the [scrollDirection] should be
   /// determined by the contents being viewed.
   ///
@@ -132,8 +134,11 @@ class ScrollableListTabScroller extends StatefulWidget {
   ///Defaults to 30.
   final double? tabHeight;
 
+  final TabAlignment? tabAlignment;
+
   @override
-  ScrollableListTabScrollerState createState() => ScrollableListTabScrollerState();
+  ScrollableListTabScrollerState createState() =>
+      ScrollableListTabScrollerState();
 }
 
 class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
@@ -147,8 +152,10 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
   void initState() {
     super.initState();
     // try to use user controllers or create them
-    itemScrollController = widget.itemScrollController ?? ItemScrollController();
-    itemPositionsListener = widget.itemPositionsListener ?? ItemPositionsListener.create();
+    itemScrollController =
+        widget.itemScrollController ?? ItemScrollController();
+    itemPositionsListener =
+        widget.itemPositionsListener ?? ItemPositionsListener.create();
 
     itemPositionsListener.itemPositions.addListener(_itemPositionListener);
 
@@ -171,21 +178,24 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
   void _triggerScrollInPositionedListIfNeeded(int index) {
     if (getDisplayedPositionFromList() != index &&
         // Prevent operation when length == 0 (Component was rendered outside screen)
-        itemPositionsListener.itemPositions.value.length != 0) {
+        itemPositionsListener.itemPositions.value.isNotEmpty) {
       // disableItemPositionListener = true;
       if (itemScrollController.isAttached) {
-        itemScrollController.scrollTo(index: index, duration: widget.animationDuration);
+        itemScrollController.scrollTo(
+            index: index, duration: widget.animationDuration);
       }
     }
   }
 
   void setCurrentActiveIfDifferent(int currentActive) {
-    if (_selectedTabIndex.value != currentActive) _selectedTabIndex.value = currentActive;
+    if (_selectedTabIndex.value != currentActive) {
+      _selectedTabIndex.value = currentActive;
+    }
   }
 
   void _itemPositionListener() {
     // Prevent operation when length == 0 (Component was rendered outside screen)
-    if (itemPositionsListener.itemPositions.value.length == 0) {
+    if (itemPositionsListener.itemPositions.value.isEmpty) {
       return;
     }
     final displayedIdx = getDisplayedPositionFromList();
@@ -196,12 +206,23 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
 
   int? getDisplayedPositionFromList() {
     final value = itemPositionsListener.itemPositions.value;
-    if (value.length < 1) {
+    if (value.isEmpty) {
       return null;
     }
-    final orderedListByPositionIndex = value.toList()..sort((a, b) => a.index.compareTo(b.index));
+    final orderedListByPositionIndex = value.toList()
+      ..sort((a, b) => a.index.compareTo(b.index));
 
     final renderedMostTopItem = orderedListByPositionIndex.first;
+
+    if (orderedListByPositionIndex.length > 1 &&
+        orderedListByPositionIndex.last.index == widget.itemCount - 1) {
+      // I dont know why it's not perfectly 1.0
+      // 1.01 LGTM
+      const fullBottomEdge = 1.01;
+      if (orderedListByPositionIndex.last.itemTrailingEdge < fullBottomEdge) {
+        return orderedListByPositionIndex.last.index;
+      }
+    }
     if (renderedMostTopItem.getBottomOffset(_currentPositionedListSize) <
         widget.earlyChangePositionOffset) {
       if (orderedListByPositionIndex.length > 1) {
@@ -220,7 +241,8 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
         );
   }
 
-  Widget buildCustomBodyContainerOrDefault({required BuildContext context, required Widget child}) {
+  Widget buildCustomBodyContainerOrDefault(
+      {required BuildContext context, required Widget child}) {
     return widget.bodyContainerBuilder?.call(context, child) ??
         Expanded(
           child: child,
@@ -228,7 +250,8 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
   }
 
   Future<void> _onScrollsToTop(ScrollsToTopEvent event) async {
-    itemScrollController.scrollTo(index: 0, duration: event.duration, curve: event.curve);
+    itemScrollController.scrollTo(
+        index: 0, duration: event.duration, curve: event.curve);
   }
 
   @override
@@ -244,6 +267,7 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
             //TODO: implement callback to handle tab click ,
             selectedTabIndex: _selectedTabIndex,
             tabBuilder: widget.tabBuilder,
+            tabAlignment: widget.tabAlignment,
           ),
         ),
         buildCustomBodyContainerOrDefault(
@@ -299,6 +323,7 @@ class DefaultHeaderWidget extends StatefulWidget {
   final IndexedActiveStatusWidgetBuilder tabBuilder;
   final IndexedVoidCallback onTapTab;
   final int itemCount;
+  final TabAlignment? tabAlignment;
 
   DefaultHeaderWidget({
     Key? key,
@@ -306,6 +331,7 @@ class DefaultHeaderWidget extends StatefulWidget {
     required this.tabBuilder,
     required this.onTapTab,
     required this.itemCount,
+    this.tabAlignment,
   }) : super(key: key);
 
   @override
@@ -364,12 +390,13 @@ class _DefaultHeaderWidgetState extends State<DefaultHeaderWidget>
         highlightColor: Colors.transparent,
       ),
       child: TabBar(
+        tabAlignment: widget.tabAlignment,
         onTap: _onTapTab,
         indicator: BoxDecoration(),
         indicatorWeight: 0,
         labelPadding: EdgeInsets.zero,
         automaticIndicatorColorAdjustment: false,
-        overlayColor: MaterialStateProperty.all(Colors.transparent),
+        overlayColor: WidgetStateProperty.all(Colors.transparent),
         labelColor: defaultTextStyle.style.color,
         isScrollable: true,
         controller: _tabController,
