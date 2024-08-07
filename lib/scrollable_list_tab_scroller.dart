@@ -1,9 +1,14 @@
 import 'dart:async';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:scrolls_to_top/scrolls_to_top.dart';
 export 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+
+part "header_container_props.dart";
+part "tab_bar_props.dart";
+part "body_container_props.dart";
 
 typedef IndexedActiveStatusWidgetBuilder = Widget Function(
     BuildContext context, int index, bool active);
@@ -15,23 +20,13 @@ typedef BodyContainerBuilder = Widget Function(
     BuildContext context, Widget child);
 
 class ScrollableListTabScroller extends StatefulWidget {
-  final int itemCount;
-  final IndexedWidgetBuilder itemBuilder;
-  final IndexedActiveStatusWidgetBuilder tabBuilder;
-  final HeaderContainerBuilder? headerContainerBuilder;
-  final BodyContainerBuilder? bodyContainerBuilder;
-  final ItemScrollController? itemScrollController;
-  final ItemPositionsListener? itemPositionsListener;
-  final void Function(int tabIndex)? tabChanged;
-  final double earlyChangePositionOffset;
-  final Duration animationDuration;
-
   ScrollableListTabScroller({
     required this.itemCount,
     required this.itemBuilder,
     required this.tabBuilder,
     this.headerContainerBuilder,
-    @Deprecated("This code is unused and will be removed in the next release.")
+    @Deprecated(
+        "This code is unused and will be removed in the next release. Deprecated since >3.0.1")
     Widget Function(BuildContext context, Widget child)? headerWidgetBuilder,
     this.bodyContainerBuilder,
     this.itemScrollController,
@@ -53,9 +48,53 @@ class ScrollableListTabScroller extends StatefulWidget {
     this.minCacheExtent,
     this.scrollOffsetController,
     this.scrollOffsetListener,
-    this.tabHeight,
-    this.tabAlignment = TabAlignment.start,
-  });
+    @Deprecated(
+        "Use 'ScrollableListTabScroller.defaultComponents(tabBarProps: )' instead. Deprecated since >3.0.1")
+    TabAlignment? tabAlignment = TabAlignment.start,
+  })  : tabBarProps = TabBarProps(tabAlignment: tabAlignment),
+        headerContainerProps = HeaderContainerProps();
+
+  const ScrollableListTabScroller.defaultComponents({
+    this.headerContainerProps = const HeaderContainerProps(),
+    this.tabBarProps = const TabBarProps(),
+    required this.itemCount,
+    required this.itemBuilder,
+    required this.tabBuilder,
+    this.bodyContainerBuilder,
+    this.itemScrollController,
+    this.itemPositionsListener,
+    this.tabChanged,
+    this.earlyChangePositionOffset = 0,
+    this.animationDuration = const Duration(milliseconds: 300),
+    this.shrinkWrap = false,
+    this.initialScrollIndex = 0,
+    this.initialAlignment = 0,
+    this.scrollDirection = Axis.vertical,
+    this.reverse = false,
+    this.physics,
+    this.semanticChildCount,
+    this.padding,
+    this.addSemanticIndexes = true,
+    this.addAutomaticKeepAlives = true,
+    this.addRepaintBoundaries = true,
+    this.minCacheExtent,
+    this.scrollOffsetController,
+    this.scrollOffsetListener,
+  }) : headerContainerBuilder = null;
+
+  final int itemCount;
+  final IndexedWidgetBuilder itemBuilder;
+  final IndexedActiveStatusWidgetBuilder tabBuilder;
+  final HeaderContainerBuilder? headerContainerBuilder;
+  final BodyContainerBuilder? bodyContainerBuilder;
+  final ItemScrollController? itemScrollController;
+  final ItemPositionsListener? itemPositionsListener;
+  final void Function(int tabIndex)? tabChanged;
+  final double earlyChangePositionOffset;
+  final Duration animationDuration;
+
+  final HeaderContainerProps headerContainerProps;
+  final TabBarProps tabBarProps;
 
   final ScrollOffsetController? scrollOffsetController;
 
@@ -129,12 +168,6 @@ class ScrollableListTabScroller extends StatefulWidget {
   /// in builds of widgets that would otherwise already be built in the
   /// cache extent.
   final double? minCacheExtent;
-
-  ///TabBar height
-  ///Defaults to 30.
-  final double? tabHeight;
-
-  final TabAlignment? tabAlignment;
 
   @override
   ScrollableListTabScrollerState createState() =>
@@ -236,7 +269,8 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
       {required BuildContext context, required Widget child}) {
     return widget.headerContainerBuilder?.call(context, child) ??
         SizedBox(
-          height: widget.tabHeight ?? 30,
+          width: widget.headerContainerProps.width,
+          height: widget.headerContainerProps.height,
           child: child,
         );
   }
@@ -267,7 +301,7 @@ class ScrollableListTabScrollerState extends State<ScrollableListTabScroller> {
             //TODO: implement callback to handle tab click ,
             selectedTabIndex: _selectedTabIndex,
             tabBuilder: widget.tabBuilder,
-            tabAlignment: widget.tabAlignment,
+            tabBarProps: widget.tabBarProps,
           ),
         ),
         buildCustomBodyContainerOrDefault(
@@ -323,7 +357,7 @@ class DefaultHeaderWidget extends StatefulWidget {
   final IndexedActiveStatusWidgetBuilder tabBuilder;
   final IndexedVoidCallback onTapTab;
   final int itemCount;
-  final TabAlignment? tabAlignment;
+  final TabBarProps tabBarProps;
 
   DefaultHeaderWidget({
     Key? key,
@@ -331,8 +365,15 @@ class DefaultHeaderWidget extends StatefulWidget {
     required this.tabBuilder,
     required this.onTapTab,
     required this.itemCount,
-    this.tabAlignment,
-  }) : super(key: key);
+    @Deprecated("Use 'tabBarProps' instead. Deprecated since >3.0.1")
+    TabAlignment? tabAlignment,
+    TabBarProps? tabBarProps,
+  })  : assert(tabAlignment == null || tabBarProps == null,
+            "Must use only 'tabBarProps'"),
+        tabBarProps = tabAlignment != null
+            ? TabBarProps(tabAlignment: tabAlignment)
+            : tabBarProps ?? const TabBarProps(),
+        super(key: key);
 
   @override
   State<DefaultHeaderWidget> createState() => _DefaultHeaderWidgetState();
@@ -390,17 +431,35 @@ class _DefaultHeaderWidgetState extends State<DefaultHeaderWidget>
         highlightColor: Colors.transparent,
       ),
       child: TabBar(
-        tabAlignment: widget.tabAlignment,
-        onTap: _onTapTab,
-        indicator: BoxDecoration(),
-        indicatorWeight: 0,
-        labelPadding: EdgeInsets.zero,
-        automaticIndicatorColorAdjustment: false,
-        overlayColor: WidgetStateProperty.all(Colors.transparent),
-        labelColor: defaultTextStyle.style.color,
-        isScrollable: true,
         controller: _tabController,
+        onTap: _onTapTab,
         tabs: tabList,
+        isScrollable: widget.tabBarProps.isScrollable,
+        padding: widget.tabBarProps.padding,
+        indicatorColor: widget.tabBarProps.indicatorColor,
+        automaticIndicatorColorAdjustment:
+            widget.tabBarProps.automaticIndicatorColorAdjustment,
+        indicatorWeight: widget.tabBarProps.indicatorWeight,
+        indicatorPadding: widget.tabBarProps.indicatorPadding,
+        indicator: widget.tabBarProps.indicator,
+        indicatorSize: widget.tabBarProps.indicatorSize,
+        dividerColor: widget.tabBarProps.dividerColor,
+        dividerHeight: widget.tabBarProps.dividerHeight,
+        labelColor: widget.tabBarProps.labelColor is _DefaultTextStyleColor
+            ? defaultTextStyle.style.color
+            : widget.tabBarProps.labelColor,
+        labelStyle: widget.tabBarProps.labelStyle,
+        labelPadding: widget.tabBarProps.labelPadding,
+        unselectedLabelColor: widget.tabBarProps.unselectedLabelColor,
+        unselectedLabelStyle: widget.tabBarProps.unselectedLabelStyle,
+        dragStartBehavior: widget.tabBarProps.dragStartBehavior,
+        overlayColor: widget.tabBarProps.overlayColor,
+        mouseCursor: widget.tabBarProps.mouseCursor,
+        enableFeedback: widget.tabBarProps.enableFeedback,
+        physics: widget.tabBarProps.physics,
+        splashFactory: widget.tabBarProps.splashFactory,
+        splashBorderRadius: widget.tabBarProps.splashBorderRadius,
+        tabAlignment: widget.tabBarProps.tabAlignment,
       ),
     );
   }

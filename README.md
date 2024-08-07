@@ -17,20 +17,22 @@ Add dependency for package on your pubspec.yaml:
 To use this widget we must first define how our tabs will look like.
 
 ### ScrollableListTabScroller
-|Parameter| Definition |
-|--|--|
-|`int itemCount`|Quantity item that will be built.|
-|`IndexedWidgetBuilder itemBuilder`|Builder of list item.|
-|`IndexedActiveStatusWidgetBuilder tabBuilder`|Builder of tab with active status for customization.|
-|`HeaderContainerBuilder? headerContainerBuilder`|Optional header container builder for customization.|
-|`BodyContainerBuilder? bodyContainerBuilder`|Optional body container builder for customization.|
-|`ItemScrollController? itemScrollController`|Optional controller for item list.|
-|`ItemPositionsListener? itemPositionsListener`|Optional listener of item list positions.|
-|`void Function(int)? tabChanged`|Optional listener of tab changes.|
-|`double earlyChangePositionOffset`|Optional vertical offset to change the index before the list item reaches the edge(default = 0).|
-|`Duration animationDuration`|Optional animation duration|
-|`rest of the parameters`|Optional [scrollable_positioned_list](https://pub.dev/packages/scrollable_positioned_list/versions/0.3.5)'s parameters|
+| Parameter                                        | Definition                                                                                                             |
+|--------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| `int itemCount`                                  | Quantity item that will be built.                                                                                      |
+| `IndexedWidgetBuilder itemBuilder`               | Builder of list item.                                                                                                  |
+| `IndexedActiveStatusWidgetBuilder tabBuilder`    | Builder of tab with active status for customization.                                                                   |
+| `HeaderContainerBuilder? headerContainerBuilder` | Optional header container builder for customization.                                                                   |
+| `BodyContainerBuilder? bodyContainerBuilder`     | Optional body container builder for customization.                                                                     |
+| `ItemScrollController? itemScrollController`     | Optional controller for item list.                                                                                     |
+| `ItemPositionsListener? itemPositionsListener`   | Optional listener of item list positions.                                                                              |
+| `void Function(int)? tabChanged`                 | Optional listener of tab changes.                                                                                      |
+| `double earlyChangePositionOffset`               | Optional vertical offset to change the index before the list item reaches the edge(default = 0).                       |
+| `Duration animationDuration`                     | Optional animation duration                                                                                            |
+| `rest of the parameters`                         | Optional [scrollable_positioned_list](https://pub.dev/packages/scrollable_positioned_list/versions/0.3.5)'s parameters |
 
+
+`If you don't want to build your own HeaderContainer with a builder, you can instead use the ScrollableListTabScroller.defaultComponents() constructor, which provides additional properties for customizing the default header container and tab bar.`
 
 ## Example
 

@@ -101,7 +101,9 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: ScrollableListTabScroller(
+      body: ScrollableListTabScroller.defaultComponents(
+        headerContainerProps: HeaderContainerProps(height: 50),
+        tabBarProps: TabBarProps(dividerColor: Colors.red.withOpacity(0.3)),
         itemCount: data.length,
         earlyChangePositionOffset: 30,
         tabBuilder: (BuildContext context, int index, bool active) => Padding(
