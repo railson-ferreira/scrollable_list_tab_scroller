@@ -1,3 +1,8 @@
+## 3.1.0
+
+Features:
+- Add a `.defaultComponents()` constructor to allow customization of default components
+
 ## 3.0.1
 
 Changes:
