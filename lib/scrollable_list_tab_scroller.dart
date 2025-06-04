@@ -1,14 +1,16 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:scrolls_to_top/scrolls_to_top.dart';
+
 export 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+part "body_container_props.dart";
 part "header_container_props.dart";
 part "tab_bar_props.dart";
-part "body_container_props.dart";
 
 typedef IndexedActiveStatusWidgetBuilder = Widget Function(
     BuildContext context, int index, bool active);
@@ -387,7 +389,8 @@ class _DefaultHeaderWidgetState extends State<DefaultHeaderWidget>
   void initState() {
     super.initState();
     _tabController = TabController(
-      initialIndex: widget.selectedTabIndex.value,
+      initialIndex:
+          min(widget.selectedTabIndex.value, max(0, widget.itemCount - 1)),
       length: widget.itemCount,
       vsync: this,
     );
