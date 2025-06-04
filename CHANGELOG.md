@@ -1,3 +1,8 @@
+## 3.1.1
+
+Fixes:
+- Fix error when removing last item when selected ([#23](https://github.com/railson-ferreira/scrollable_list_tab_scroller/issues/23))
+
 ## 3.1.0
 
 Features:
